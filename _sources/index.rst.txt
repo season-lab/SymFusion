@@ -20,14 +20,14 @@ Publications
 
 .. code-block:: latex
 
-@inproceedings{SYMFUSION-ASE22,
- author={Coppa, Emilio and Yin, Heng  and Demetrescu, Camil},
- title={{SymFusion: Hybrid Instrumentation for Concolic Execution}},
- booktitle={Proceedings of the 37th IEEE/ACM International Conference on Automated Software Engineering},
- series={ASE '22},
- doi={10.1145/3551349.3556928},
- year={2022},
-}
+   @inproceedings{SYMFUSION-ASE22,
+      author={Coppa, Emilio and Yin, Heng  and Demetrescu, Camil},
+      title={{SymFusion: Hybrid Instrumentation for Concolic Execution}},
+      booktitle={Proceedings of the 37th IEEE/ACM International Conference on Automated Software Engineering},
+      series={ASE '22},
+      doi={10.1145/3551349.3556928},
+      year={2022},
+   }
 
 .. toctree::
    :maxdepth: 2
