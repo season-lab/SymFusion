@@ -260,6 +260,7 @@ COPY --from=builder /symfusion/z3 /symfusion/z3
 COPY --from=builder /symfusion/libcxx_install /symfusion/libcxx_install
 COPY --from=builder /symfusion/original/libcxx_install /symfusion/original/libcxx_install
 COPY --from=builder /symfusion/utils /symfusion/utils
+COPY --chown=ubuntu:ubuntu ./tests/microbenchmarks /symfusion/tests/microbenchmarks
 
 ENV PATH /symfusion/symcc-hybrid/build:$PATH
 ENV AFL_PATH /afl

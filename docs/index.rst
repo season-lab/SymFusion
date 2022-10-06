@@ -35,6 +35,7 @@ Publications
    
    install
    usage
+   microbenchmarks
 
 .. toctree::
    :maxdepth: 2

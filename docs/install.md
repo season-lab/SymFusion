@@ -15,3 +15,6 @@ SymFusion has been tested on Ubuntu 20.04 x86_64. A manual installation requires
 
 Step-by-step instructions for compiling these components can be found inside the [`Dockerfile`](https://github.com/season-lab/SymFusion/blob/master/docker/Dockerfile).
 
+## Tests
+
+To check whether SymFusion is running as expected, you can run the [microbenchmarks](/microbenchmarks).
