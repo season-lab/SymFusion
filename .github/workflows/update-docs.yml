@@ -8,7 +8,9 @@ jobs:
   docs:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v3
+      with:
+        submodules: false
     - uses: ammaraskar/sphinx-action@master
       with:
         docs-folder: "docs/"
@@ -16,6 +18,7 @@ jobs:
       with:
         ref: gh-pages
         path: gh-pages 
+        submodules: false
     - name: Commit documentation changes
       run: |
         cp -r docs/_build/html/* gh-pages/
