@@ -2,3 +2,7 @@
 	path = symqemu-hybrid
 	url = https://github.com/season-lab/symqemu-hybrid.git
 	branch = hybrid_alt
+[submodule "symcc-hybrid"]
+	path = symcc-hybrid
+	url = https://github.com/season-lab/symcc-hybrid.git
+	branch = hybrid
