@@ -118,7 +118,7 @@ total_run=0.13, total_pick=0.00, all_time=0.13
 
 [SymFusion] no more testcases. Finishing.
 ```
-and we can see that the generated input is indeed accepted by the program:
+and we can see that the generated input is indeed accepted by the non-instrumented program:
 ```
 $ ./example out/queue/id\:000001\,src\:id\:000000 
 Correct value [deadbeef] :)
