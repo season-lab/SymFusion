@@ -35,7 +35,7 @@ $ ./build-symcc-qsym.sh
 $ ./build-symqemu.sh
 ```
 
-Step-by-step instructions for compiling these components can be found inside the [`Dockerfile`](https://github.com/season-lab/SymFusion/blob/master/docker/Dockerfile).
+More detailed step-by-step instructions for building these components can be found inside the [`Dockerfile`](https://github.com/season-lab/SymFusion/blob/master/docker/Dockerfile).
 
 ## Tests
 
