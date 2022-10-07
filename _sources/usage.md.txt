@@ -20,7 +20,7 @@ Several other options can be set to enable additional features:
  * `-f, --fork-server`: run SymFusion with the fork server;
  * `-q, --queue-mode {symfusion, qsym, hash}`: how to assess whether a generated input is interesting and how to pick inputs from the queue. `symfusion` is using a custom edge tracer. `qsym` is using AFL++ `afl-showmap` (as done by QSYM) and you need to have an uninstrumented binary `<program>.symqemu`. `hash` is keeping in the queue inputs that have a different hash. 
  * `--keep-run-dirs`: intermediate run directories (`workdir/fuzzolic-XXXXX`), containing tracer/solver logs and generated testcases (before discarding uninteresting ones), will not be deleted when this option is set;
- * `-d, --debug {output, gdb}`: run SymFusion only the first input from the input directory. `output` will show you the full output of the run. `gdb` will execute SymFusion under GDB.
+ * `-d, --debug {output, gdb}`: run SymFusion only on the first seed from the input directory. `output` will show you the full output of the run. `gdb` will execute SymFusion under GDB.
 
  The full list of fuzzolic options can be seen using `./runner/symfusion.py --help`.
 
