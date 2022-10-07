@@ -62,7 +62,7 @@ def main():
     parser.add_argument(
         '-t', '--timeout', type=int, help='maximum running time for each input (secs)')
     parser.add_argument(
-        '-k', '--keep-run-dirs', action='store_false', help='keep run directories')
+        '-k', '--keep-run-dirs', action='store_true', help='keep run directories')
     parser.add_argument(
         '-c', '--cache', help='path to cache directory')
     parser.add_argument(
