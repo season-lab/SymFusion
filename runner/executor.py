@@ -185,8 +185,8 @@ class Executor(object):
         start = time.time()
         p = subprocess.Popen(
             p_args,
-            # stdout=None if self.debug else (output_log if output_log is not None else subprocess.DEVNULL),
-            # stderr=None if self.debug else (output_log if output_log is not None else subprocess.DEVNULL),
+            stdout=None if self.debug else (output_log if output_log is not None else subprocess.DEVNULL),
+            stderr=None if self.debug else (output_log if output_log is not None else subprocess.DEVNULL),
             stdin=None, # subprocess.DEVNULL,
             cwd=run_dir,
             env=env,

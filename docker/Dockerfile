@@ -201,6 +201,10 @@ RUN make comparer
 #
 FROM ubuntu:20.04
 
+
+# NOTE: most of these dependencies are needed when building the
+#       the real-world program used in our experiments...
+#       we should remove them.
 # libtool-bin bison
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y \
@@ -238,29 +242,32 @@ RUN make clean && make -j `nproc`
 RUN cd qemu_mode && ./build_qemu_support.sh
 # RUN cd custom_mutators/concolic && make clean && make
 
+RUN mkdir -p /symfusion/tests
+RUN chown -R ubuntu:ubuntu /symfusion/
 USER ubuntu
 
 WORKDIR /home/ubuntu
-RUN wget -q https://github.com/hugsy/gef/raw/master/scripts/gef.sh 
+RUN wget -q https://raw.githubusercontent.com/hugsy/gef/main/scripts/gef.sh
 RUN chmod +x ./gef.sh
 RUN bash -c ./gef.sh
 
 RUN pip install psutil
 
-COPY --from=builder /symfusion/symcc-hybrid /symfusion/symcc-hybrid/
-COPY --from=builder /symfusion/original/symcc/build /symfusion/original/symcc/build
-COPY --from=builder /symfusion/symqemu-hybrid /symfusion/symqemu-hybrid
-COPY --from=builder /symfusion/original/symqemu /symfusion/original/symqemu
-COPY --from=builder /symfusion/sym_helpers /symfusion/sym_helpers
-COPY --from=builder /root/.cargo/bin/symcc_fuzzing_helper /symfusion/symcc-hybrid/build/
-COPY --from=builder /symfusion/symcc-hybrid/util/pure_concolic_execution.sh /symfusion/symcc-hybrid/build/
-COPY --from=builder /symfusion/original/symcc/util/pure_concolic_execution.sh /symfusion/original/symcc/build/
-COPY ./runner /symfusion/runner
-COPY --from=builder /symfusion/z3 /symfusion/z3
-COPY --from=builder /symfusion/libcxx_install /symfusion/libcxx_install
-COPY --from=builder /symfusion/original/libcxx_install /symfusion/original/libcxx_install
-COPY --from=builder /symfusion/utils /symfusion/utils
+COPY --chown=ubuntu:ubuntu --from=builder /symfusion/symcc-hybrid /symfusion/symcc-hybrid/
+COPY --chown=ubuntu:ubuntu --from=builder /symfusion/original/symcc/build /symfusion/original/symcc/build
+COPY --chown=ubuntu:ubuntu --from=builder /symfusion/symqemu-hybrid /symfusion/symqemu-hybrid
+COPY --chown=ubuntu:ubuntu --from=builder /symfusion/original/symqemu /symfusion/original/symqemu
+COPY --chown=ubuntu:ubuntu --from=builder /symfusion/sym_helpers /symfusion/sym_helpers
+COPY --chown=ubuntu:ubuntu --from=builder /root/.cargo/bin/symcc_fuzzing_helper /symfusion/symcc-hybrid/build/
+COPY --chown=ubuntu:ubuntu --from=builder /symfusion/symcc-hybrid/util/pure_concolic_execution.sh /symfusion/symcc-hybrid/build/
+COPY --chown=ubuntu:ubuntu --from=builder /symfusion/original/symcc/util/pure_concolic_execution.sh /symfusion/original/symcc/build/
+COPY --chown=ubuntu:ubuntu ./runner /symfusion/runner
+COPY --chown=ubuntu:ubuntu --from=builder /symfusion/z3 /symfusion/z3
+COPY --chown=ubuntu:ubuntu --from=builder /symfusion/libcxx_install /symfusion/libcxx_install
+COPY --chown=ubuntu:ubuntu --from=builder /symfusion/original/libcxx_install /symfusion/original/libcxx_install
+COPY --chown=ubuntu:ubuntu --from=builder /symfusion/utils /symfusion/utils
 COPY --chown=ubuntu:ubuntu ./tests/microbenchmarks /symfusion/tests/microbenchmarks
+COPY --chown=ubuntu:ubuntu ./tests/example /symfusion/tests/example
 
 ENV PATH /symfusion/symcc-hybrid/build:$PATH
 ENV AFL_PATH /afl

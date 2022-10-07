@@ -281,7 +281,7 @@ class QueueManager(object):
         env = os.environ.copy()
         del env['AFL_PATH']
 
-        if self.afl_tracer_qemu_mode:
+        if self.afl_tracer_qemu_mode and 'AFL_MAP_SIZE' in env:
             del env['AFL_MAP_SIZE']
 
         if self.afl_tracer_persistent:

@@ -123,7 +123,7 @@ def main():
     timeout = args.timeout
     keep_run_dirs = args.keep_run_dirs
     if keep_run_dirs is None:
-        keep_run_dirs = True
+        keep_run_dirs = False
         
     if args.debug == "gdb" and args.fork_server:
         print("Cannot debug with GDB when using forkserver")
