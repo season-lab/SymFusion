@@ -103,6 +103,35 @@ where `OK` means that the branch was satisfied. `out` is the output directory us
 
 ## 05 - ntohs
 
+The goal of this program is to validate whether SymFusion can handle `ntohs` from the standard C library.
+
+```
+$ cd tests/microbenchmarks/03-x86-division-b
+$ make              # to build the program for SymFusion/SymCC/SymQEMU
+$ make symfusion    # run the program under SymFusion
+$ make symcc        # run the program under SymFusion
+$ make symqemu      # run the program under SymFusion
+```
+
+Expected results:
+ - SymFusion is able to generate an input to satify the branch inside the program. Check it with:
+```
+$ LD_LIBRARY_PATH=`pwd` ./main.symqemu < out/symfusion-00000000/000000
+OK
+```
+where `OK` means that the branch was satisfied. `out` is the output directory used by SymFusion.
+ - SymCC does not generate any input able to satisfy the branch. `ntohs` is not modelled by SymCC and thus its effects are ignored.
+ - SymQEMU SymQEMU is able to generate an input to satify the branch inside the program. Check it with:
+```
+$ LD_LIBRARY_PATH=`pwd` ./main.symqemu < out_symqemu/000000
+OK
+```
+where `out_symqemu` is the output directory used by SymQEMU.
+
+If you try to change `ntohs` with `ntohl` in `main.c` and then recompile the program and run again the tools, you can see that SymCC can generate a valid input since it has a model. The main is that SymFusion can track the code of functions even without models for them.
+
 ## 05 - strlen
+
+
 
 ## 06 - Overhead of the Context Switch
