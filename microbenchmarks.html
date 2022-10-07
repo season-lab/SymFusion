@@ -41,8 +41,8 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Microbenchmarks</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#cpu-intensive-loop">01 - CPU Intensive Loop</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#external-function">02 - External Function</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#x86-division">03 - X86 Division</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#b-x86-division-in-external-function">03b - X86 Division in External Function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#x86-64-division-in-internal-code">03 - x86_64 Division in Internal Code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#b-x86-64-division-in-external-code">03b - x86_64 Division in External Code</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#ntohs">05 - ntohs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#strlen">05 - strlen</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#overhead-of-the-context-switch">06 - Overhead of the Context Switch</a></li>
@@ -80,17 +80,37 @@
              
   <div class="section" id="microbenchmarks">
 <h1>Microbenchmarks<a class="headerlink" href="#microbenchmarks" title="Permalink to this headline"></a></h1>
+<p>We assume you are using our docker container image to run the microbenchmarks. E.g., started with:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">docker</span> <span class="n">run</span> <span class="o">-</span><span class="n">ti</span> <span class="o">--</span><span class="n">rm</span> <span class="n">ercoppa</span><span class="o">/</span><span class="n">symfusion</span>
+</pre></div>
+</div>
+<p>If you are not running the docker container, you may have to fix a few paths in the <code class="docutils literal notranslate"><span class="pre">Makefile</span></code>s that we will use.</p>
 <div class="section" id="cpu-intensive-loop">
 <h2>01 - CPU Intensive Loop<a class="headerlink" href="#cpu-intensive-loop" title="Permalink to this headline"></a></h2>
+<p>The goal of this program is assess the analysis overhead of SymFusion compared to SymCC and SymQEMU when using a CPU intensive loop.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd tests/microbenchmarks/01-cpu-intensive-loop
+$ make              # to build the program for SymFusion/SymCC/SymQEMU
+$ make symfusion    # run the program under SymFusion
+$ make symcc        # run the program under SymFusion
+$ make symqemu      # run the program under SymFusion
+</pre></div>
+</div>
+<p>From the output of the three tools, you can see their running time. On our machine:</p>
+<ul class="simple">
+<li><p>SymFusion: 940 ms</p></li>
+<li><p>SymCC: 910 ms</p></li>
+<li><p>SymQEMU: 6008 ms
+Hence, you can see that SymFusion is almost as fast as SymCC and way faster than SymQEMU.</p></li>
+</ul>
 </div>
 <div class="section" id="external-function">
 <h2>02 - External Function<a class="headerlink" href="#external-function" title="Permalink to this headline"></a></h2>
 </div>
-<div class="section" id="x86-division">
-<h2>03 - X86 Division<a class="headerlink" href="#x86-division" title="Permalink to this headline"></a></h2>
+<div class="section" id="x86-64-division-in-internal-code">
+<h2>03 - x86_64 Division in Internal Code<a class="headerlink" href="#x86-64-division-in-internal-code" title="Permalink to this headline"></a></h2>
 </div>
-<div class="section" id="b-x86-division-in-external-function">
-<h2>03b - X86 Division in External Function<a class="headerlink" href="#b-x86-division-in-external-function" title="Permalink to this headline"></a></h2>
+<div class="section" id="b-x86-64-division-in-external-code">
+<h2>03b - x86_64 Division in External Code<a class="headerlink" href="#b-x86-64-division-in-external-code" title="Permalink to this headline"></a></h2>
 </div>
 <div class="section" id="ntohs">
 <h2>05 - ntohs<a class="headerlink" href="#ntohs" title="Permalink to this headline"></a></h2>
