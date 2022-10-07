@@ -1,0 +1,5 @@
+*/out
+*/out_symcc
+*/out_symqemu
+*/main.*
+*/*.so
