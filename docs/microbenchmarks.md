@@ -106,7 +106,7 @@ where `OK` means that the branch was satisfied. `out` is the output directory us
 The goal of this program is to validate whether SymFusion can handle `ntohs` from the standard C library.
 
 ```
-$ cd tests/microbenchmarks/03-x86-division-b
+$ cd tests/microbenchmarks/04-ntohs
 $ make              # to build the program for SymFusion/SymCC/SymQEMU
 $ make symfusion    # run the program under SymFusion
 $ make symcc        # run the program under SymFusion
@@ -121,7 +121,7 @@ OK
 ```
 where `OK` means that the branch was satisfied. `out` is the output directory used by SymFusion.
  - SymCC does not generate any input able to satisfy the branch. `ntohs` is not modelled by SymCC and thus its effects are ignored.
- - SymQEMU SymQEMU is able to generate an input to satify the branch inside the program. Check it with:
+ - SymQEMU is able to generate an input to satify the branch inside the program. Check it with:
 ```
 $ LD_LIBRARY_PATH=`pwd` ./main.symqemu < out_symqemu/000000
 OK
@@ -132,6 +132,24 @@ If you try to change `ntohs` with `ntohl` in `main.c` and then recompile the pro
 
 ## 05 - strlen
 
+The goal of this program is to validate whether SymFusion can handle `strlen` from the standard C library.
 
+```
+$ cd tests/microbenchmarks/05-strlen
+$ make              # to build the program for SymFusion/SymCC/SymQEMU
+$ make symfusion    # run the program under SymFusion
+$ make symcc        # run the program under SymFusion
+$ make symqemu      # run the program under SymFusion
+```
+
+Expected results:
+ - SymFusion is able to generate an input to satify the branch inside the program. Check it with:
+```
+$ LD_LIBRARY_PATH=`pwd` ./main.symqemu < out/symfusion-00000000/000000
+OK
+```
+where `OK` means that the branch was satisfied. `out` is the output directory used by SymFusion. However, this is possible thanks the use of a function model. If you disable the function model for `strlen` in SymFusion, it will accurately reason on `strlen`, however, the resulting expressions are too complex: the binary code is likely using vectorized instructions which require a concolic executor to handle symbolic addresses to solve them in some cases. SymFusion, similarly to SymCC and SymQEMU, concretizes symbolic addresses. 
+ - SymCC does not generate any input able to satisfy the branch. `strlen` is not modelled by SymCC and thus its effects are ignored.
+ - SymQEMU does not generate any input able to satisfy the branch. Indeed, `strlen` is likely implemented with vectorized instructions that in QEMU are handled by helpers but SymQEMU ignores the effects of the QEMU helpers.
 
 ## 06 - Overhead of the Context Switch
