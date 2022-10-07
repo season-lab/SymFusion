@@ -87,7 +87,7 @@
 <p>If you are not running the docker container, you may have to fix a few paths in the <code class="docutils literal notranslate"><span class="pre">Makefile</span></code>s that we will use.</p>
 <div class="section" id="cpu-intensive-loop">
 <h2>01 - CPU Intensive Loop<a class="headerlink" href="#cpu-intensive-loop" title="Permalink to this headline"></a></h2>
-<p>The goal of this program is assess the analysis overhead of SymFusion compared to SymCC and SymQEMU when using a CPU intensive loop.</p>
+<p>The goal of this program is to assess the analysis overhead of SymFusion compared to SymCC and SymQEMU when using a CPU intensive loop.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd tests/microbenchmarks/01-cpu-intensive-loop
 $ make              # to build the program for SymFusion/SymCC/SymQEMU
 $ make symfusion    # run the program under SymFusion
@@ -105,8 +105,37 @@ $ make symqemu      # run the program under SymFusion
 </div>
 <div class="section" id="data-flow-via-external-function">
 <h2>02 - Data Flow via External Function<a class="headerlink" href="#data-flow-via-external-function" title="Permalink to this headline"></a></h2>
-<p>The goal of this program is validate that SymFusion can correctly track a data flow even when this flow is happening inside a library function that was not instrumented at compilation time.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd tests/microbenchmarks/01-cpu-intensive-loop
+<p>The goal of this program is to validate that SymFusion can correctly track a data flow even when this flow is happening inside a library function that was not instrumented at compilation time.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd tests/microbenchmarks/02-external-function
+$ make              # to build the program for SymFusion/SymCC/SymQEMU
+$ make symfusion    # run the program under SymFusion
+$ make symcc        # run the program under SymFusion
+$ make symqemu      # run the program under SymFusion
+</pre></div>
+</div>
+<p>Expected results:</p>
+<ul class="simple">
+<li><p>SymFusion is able to generate an input to satify the branch inside the program. Check it with:</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ LD_LIBRARY_PATH=`pwd` ./main.symqemu &lt; out/symfusion-00000000/000000
+OK
+</pre></div>
+</div>
+<p>where <code class="docutils literal notranslate"><span class="pre">OK</span></code> means that the branch was satisfied. <code class="docutils literal notranslate"><span class="pre">out</span></code> is the output directory used by SymFusion. We use the <code class="docutils literal notranslate"><span class="pre">main.symqemu</span></code> binary because it is binary without instrumentation (hence, no noise from SymCC or SymFusion).</p>
+<ul class="simple">
+<li><p>SymCC does not generate any input able to satisfy the branch. It is missing the data flow via the external code. Check <code class="docutils literal notranslate"><span class="pre">out_symcc</span></code> to see that there no inputs.</p></li>
+<li><p>SymQEMU is able to generate an input to satify the branch inside the program. Check it with:</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ LD_LIBRARY_PATH=`pwd` ./main.symqemu &lt; out_symqemu/000000
+OK
+</pre></div>
+</div>
+<p>where <code class="docutils literal notranslate"><span class="pre">out_symqemu</span></code> is the output directory used by SymQEMU.</p>
+</div>
+<div class="section" id="x86-64-division-in-internal-code">
+<h2>03 - x86_64 Division in Internal Code<a class="headerlink" href="#x86-64-division-in-internal-code" title="Permalink to this headline"></a></h2>
+<p>The goal of this program is to validate whether SymFusion can handle an x84_64 division in the internal code.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd tests/microbenchmarks/03-x86-division
 $ make              # to build the program for SymFusion/SymCC/SymQEMU
 $ make symfusion    # run the program under SymFusion
 $ make symcc        # run the program under SymFusion
@@ -123,17 +152,16 @@ OK
 </div>
 <p>where <code class="docutils literal notranslate"><span class="pre">OK</span></code> means that the branch was satisfied. <code class="docutils literal notranslate"><span class="pre">out</span></code> is the output directory used by SymFusion.</p>
 <ul class="simple">
-<li><p>SymCC does not generate any input able to satisfy the branch. It is missing the data flow via the external code. Check <code class="docutils literal notranslate"><span class="pre">out_symcc</span></code> to see that there no inpits.</p></li>
-<li><p>SymQEMU is able to generate an input to satify the branch inside the program. Check it with:</p></li>
+<li><p>SymCC is able to generate an input to satify the branch inside the program. Check it with:</p></li>
 </ul>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ LD_LIBRARY_PATH=`pwd` ./main.symqemu &lt; out_symqemu/000000
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ LD_LIBRARY_PATH=`pwd` ./main.symqemu &lt; out_symcc/000000
 OK
 </pre></div>
 </div>
-<p>where <code class="docutils literal notranslate"><span class="pre">out_symqemu</span></code> is the output directory used by SymQEMU.</p>
-</div>
-<div class="section" id="x86-64-division-in-internal-code">
-<h2>03 - x86_64 Division in Internal Code<a class="headerlink" href="#x86-64-division-in-internal-code" title="Permalink to this headline"></a></h2>
+<p>where <code class="docutils literal notranslate"><span class="pre">out_symcc</span></code> is the output directory used by SymCC.</p>
+<ul class="simple">
+<li><p>SymQEMU does not generate any input able to satisfy the branch. Indeed, SymQEMU does not symbolically reason on the QEMU helpers used to handle the x86_64 division.</p></li>
+</ul>
 </div>
 <div class="section" id="b-x86-64-division-in-external-code">
 <h2>03b - x86_64 Division in External Code<a class="headerlink" href="#b-x86-64-division-in-external-code" title="Permalink to this headline"></a></h2>
