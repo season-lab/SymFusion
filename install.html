@@ -93,6 +93,27 @@
 <li><p>TCG Symbolic Helpers</p></li>
 <li><p>SymCC Rust helper</p></li>
 </ul>
+<p>Download the source code:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ git clone https://github.com/season-lab/SymFusion.git
+$ cd SymFusion
+$ git submodule init
+$ git submodule update --recursive
+$ cd symcc-hybrid
+$ git submodule init
+$ git submodule update --recursive
+$ cd ..
+</pre></div>
+</div>
+<p>To build our forks of SymCC and SymQEMU, you have to satisfy their dependencies:</p>
+<ul class="simple">
+<li><p>SymCC: e.g., on Ubuntu <code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">apt</span> <span class="pre">install</span> <span class="pre">git</span> <span class="pre">cargo</span> <span class="pre">clang-10</span> <span class="pre">cmake</span> <span class="pre">g++</span> <span class="pre">git</span> <span class="pre">libz3-dev</span> <span class="pre">llvm-10-dev</span> <span class="pre">llvm-10-tools</span> <span class="pre">ninja-build</span> <span class="pre">python2</span> <span class="pre">python3-pip</span> <span class="pre">zlib1g-dev</span></code></p></li>
+<li><p>SymQEMU: e.g., on Ubuntu <code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">apt</span> <span class="pre">build-dep</span> <span class="pre">qemu</span></code></p></li>
+</ul>
+<p>To build them you can use two scripts:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ ./build-symcc-qsym.sh
+$ ./build-symqemu.sh
+</pre></div>
+</div>
 <p>Step-by-step instructions for compiling these components can be found inside the <a class="reference external" href="https://github.com/season-lab/SymFusion/blob/master/docker/Dockerfile"><code class="docutils literal notranslate"><span class="pre">Dockerfile</span></code></a>.</p>
 </div>
 <div class="section" id="tests">
