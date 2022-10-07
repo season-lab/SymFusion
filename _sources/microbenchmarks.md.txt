@@ -153,3 +153,20 @@ where `OK` means that the branch was satisfied. `out` is the output directory us
  - SymQEMU does not generate any input able to satisfy the branch. Indeed, `strlen` is likely implemented with vectorized instructions that in QEMU are handled by helpers but SymQEMU ignores the effects of the QEMU helpers.
 
 ## 06 - Overhead of the Context Switch
+
+The goal of this program is to assess the cost of the context switch between the two execution modes (native mode and virtual mode) used by SymFusion.
+
+```
+$ cd tests/microbenchmarks/06-cost-context-switch
+$ make              # to build the program for SymFusion/SymCC/SymQEMU
+$ make symfusion    # run the program under SymFusion
+$ make symcc        # run the program under SymFusion
+$ make symqemu      # run the program under SymFusion
+```
+
+From the output of the three tools, you can see their running time. On our machine:
+ - SymFusion: 114 ms
+ - SymCC: 11 ms
+ - SymQEMU: 84 ms
+
+We can that SymFusion is way slower than SymCC and even a bit slower than SymQEMU. This is due to large number of context switches performed by the program. 

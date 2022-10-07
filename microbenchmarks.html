@@ -243,6 +243,21 @@ OK
 </div>
 <div class="section" id="overhead-of-the-context-switch">
 <h2>06 - Overhead of the Context Switch<a class="headerlink" href="#overhead-of-the-context-switch" title="Permalink to this headline"></a></h2>
+<p>The goal of this program is to assess the cost of the context switch between the two execution modes (native mode and virtual mode) used by SymFusion.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd tests/microbenchmarks/06-cost-context-switch
+$ make              # to build the program for SymFusion/SymCC/SymQEMU
+$ make symfusion    # run the program under SymFusion
+$ make symcc        # run the program under SymFusion
+$ make symqemu      # run the program under SymFusion
+</pre></div>
+</div>
+<p>From the output of the three tools, you can see their running time. On our machine:</p>
+<ul class="simple">
+<li><p>SymFusion: 114 ms</p></li>
+<li><p>SymCC: 11 ms</p></li>
+<li><p>SymQEMU: 84 ms</p></li>
+</ul>
+<p>We can that SymFusion is way slower than SymCC and even a bit slower than SymQEMU. This is due to large number of context switches performed by the program.</p>
 </div>
 </div>
 
