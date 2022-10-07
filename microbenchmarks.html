@@ -85,6 +85,7 @@
 </pre></div>
 </div>
 <p>If you are not running the docker container, you may have to fix a few paths in the <code class="docutils literal notranslate"><span class="pre">Makefile</span></code>s that we will use.</p>
+<p>Each microbenchmark is a different C program composed by <code class="docutils literal notranslate"><span class="pre">main.c</span></code> (internal code) and <code class="docutils literal notranslate"><span class="pre">lib.c</span></code> (external code). Look at <code class="docutils literal notranslate"><span class="pre">main.c</span></code> to get an idea of what the microbenchmark is doing.</p>
 <div class="section" id="cpu-intensive-loop">
 <h2>01 - CPU Intensive Loop<a class="headerlink" href="#cpu-intensive-loop" title="Permalink to this headline"></a></h2>
 <p>The goal of this program is to assess the analysis overhead of SymFusion compared to SymCC and SymQEMU when using a CPU intensive loop.</p>
@@ -257,7 +258,7 @@ $ make symqemu      # run the program under SymFusion
 <li><p>SymCC: 11 ms</p></li>
 <li><p>SymQEMU: 84 ms</p></li>
 </ul>
-<p>We can that SymFusion is way slower than SymCC and even a bit slower than SymQEMU. This is due to large number of context switches performed by the program.</p>
+<p>We can that SymFusion is way slower than SymCC and even a bit slower than SymQEMU. This is due to large number of context switches (15000) performed by the program.</p>
 </div>
 </div>
 

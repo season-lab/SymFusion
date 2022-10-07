@@ -4,7 +4,9 @@ We assume you are using our docker container image to run the microbenchmarks. E
 ```
 docker run -ti --rm ercoppa/symfusion
 ```
-If you are not running the docker container, you may have to fix a few paths in the `Makefile`s that we will use.
+If you are not running the docker container, you may have to fix a few paths in the `Makefile`s that we will use. 
+
+Each microbenchmark is a different C program composed by `main.c` (internal code) and `lib.c` (external code). Look at `main.c` to get an idea of what the microbenchmark is doing.
 
 ## 01 - CPU Intensive Loop
 
@@ -169,4 +171,4 @@ From the output of the three tools, you can see their running time. On our machi
  - SymCC: 11 ms
  - SymQEMU: 84 ms
 
-We can that SymFusion is way slower than SymCC and even a bit slower than SymQEMU. This is due to large number of context switches performed by the program. 
+We can that SymFusion is way slower than SymCC and even a bit slower than SymQEMU. This is due to large number of context switches (15000) performed by the program. 
