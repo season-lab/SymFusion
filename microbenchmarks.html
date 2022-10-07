@@ -189,6 +189,33 @@ OK
 </div>
 <div class="section" id="ntohs">
 <h2>05 - ntohs<a class="headerlink" href="#ntohs" title="Permalink to this headline"></a></h2>
+<p>The goal of this program is to validate whether SymFusion can handle <code class="docutils literal notranslate"><span class="pre">ntohs</span></code> from the standard C library.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd tests/microbenchmarks/03-x86-division-b
+$ make              # to build the program for SymFusion/SymCC/SymQEMU
+$ make symfusion    # run the program under SymFusion
+$ make symcc        # run the program under SymFusion
+$ make symqemu      # run the program under SymFusion
+</pre></div>
+</div>
+<p>Expected results:</p>
+<ul class="simple">
+<li><p>SymFusion is able to generate an input to satify the branch inside the program. Check it with:</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ LD_LIBRARY_PATH=`pwd` ./main.symqemu &lt; out/symfusion-00000000/000000
+OK
+</pre></div>
+</div>
+<p>where <code class="docutils literal notranslate"><span class="pre">OK</span></code> means that the branch was satisfied. <code class="docutils literal notranslate"><span class="pre">out</span></code> is the output directory used by SymFusion.</p>
+<ul class="simple">
+<li><p>SymCC does not generate any input able to satisfy the branch. <code class="docutils literal notranslate"><span class="pre">ntohs</span></code> is not modelled by SymCC and thus its effects are ignored.</p></li>
+<li><p>SymQEMU SymQEMU is able to generate an input to satify the branch inside the program. Check it with:</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ LD_LIBRARY_PATH=`pwd` ./main.symqemu &lt; out_symqemu/000000
+OK
+</pre></div>
+</div>
+<p>where <code class="docutils literal notranslate"><span class="pre">out_symqemu</span></code> is the output directory used by SymQEMU.</p>
+<p>If you try to change <code class="docutils literal notranslate"><span class="pre">ntohs</span></code> with <code class="docutils literal notranslate"><span class="pre">ntohl</span></code> in <code class="docutils literal notranslate"><span class="pre">main.c</span></code> and then recompile the program and run again the tools, you can see that SymCC can generate a valid input since it has a model. The main is that SymFusion can track the code of functions even without models for them.</p>
 </div>
 <div class="section" id="strlen">
 <h2>05 - strlen<a class="headerlink" href="#strlen" title="Permalink to this headline"></a></h2>
