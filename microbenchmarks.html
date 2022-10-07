@@ -190,7 +190,7 @@ OK
 <div class="section" id="ntohs">
 <h2>05 - ntohs<a class="headerlink" href="#ntohs" title="Permalink to this headline"></a></h2>
 <p>The goal of this program is to validate whether SymFusion can handle <code class="docutils literal notranslate"><span class="pre">ntohs</span></code> from the standard C library.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd tests/microbenchmarks/03-x86-division-b
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd tests/microbenchmarks/04-ntohs
 $ make              # to build the program for SymFusion/SymCC/SymQEMU
 $ make symfusion    # run the program under SymFusion
 $ make symcc        # run the program under SymFusion
@@ -208,7 +208,7 @@ OK
 <p>where <code class="docutils literal notranslate"><span class="pre">OK</span></code> means that the branch was satisfied. <code class="docutils literal notranslate"><span class="pre">out</span></code> is the output directory used by SymFusion.</p>
 <ul class="simple">
 <li><p>SymCC does not generate any input able to satisfy the branch. <code class="docutils literal notranslate"><span class="pre">ntohs</span></code> is not modelled by SymCC and thus its effects are ignored.</p></li>
-<li><p>SymQEMU SymQEMU is able to generate an input to satify the branch inside the program. Check it with:</p></li>
+<li><p>SymQEMU is able to generate an input to satify the branch inside the program. Check it with:</p></li>
 </ul>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ LD_LIBRARY_PATH=`pwd` ./main.symqemu &lt; out_symqemu/000000
 OK
@@ -219,6 +219,27 @@ OK
 </div>
 <div class="section" id="strlen">
 <h2>05 - strlen<a class="headerlink" href="#strlen" title="Permalink to this headline"></a></h2>
+<p>The goal of this program is to validate whether SymFusion can handle <code class="docutils literal notranslate"><span class="pre">strlen</span></code> from the standard C library.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd tests/microbenchmarks/05-strlen
+$ make              # to build the program for SymFusion/SymCC/SymQEMU
+$ make symfusion    # run the program under SymFusion
+$ make symcc        # run the program under SymFusion
+$ make symqemu      # run the program under SymFusion
+</pre></div>
+</div>
+<p>Expected results:</p>
+<ul class="simple">
+<li><p>SymFusion is able to generate an input to satify the branch inside the program. Check it with:</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ LD_LIBRARY_PATH=`pwd` ./main.symqemu &lt; out/symfusion-00000000/000000
+OK
+</pre></div>
+</div>
+<p>where <code class="docutils literal notranslate"><span class="pre">OK</span></code> means that the branch was satisfied. <code class="docutils literal notranslate"><span class="pre">out</span></code> is the output directory used by SymFusion. However, this is possible thanks the use of a function model. If you disable the function model for <code class="docutils literal notranslate"><span class="pre">strlen</span></code> in SymFusion, it will accurately reason on <code class="docutils literal notranslate"><span class="pre">strlen</span></code>, however, the resulting expressions are too complex: the binary code is likely using vectorized instructions which require a concolic executor to handle symbolic addresses to solve them in some cases. SymFusion, similarly to SymCC and SymQEMU, concretizes symbolic addresses.</p>
+<ul class="simple">
+<li><p>SymCC does not generate any input able to satisfy the branch. <code class="docutils literal notranslate"><span class="pre">strlen</span></code> is not modelled by SymCC and thus its effects are ignored.</p></li>
+<li><p>SymQEMU does not generate any input able to satisfy the branch. Indeed, <code class="docutils literal notranslate"><span class="pre">strlen</span></code> is likely implemented with vectorized instructions that in QEMU are handled by helpers but SymQEMU ignores the effects of the QEMU helpers.</p></li>
+</ul>
 </div>
 <div class="section" id="overhead-of-the-context-switch">
 <h2>06 - Overhead of the Context Switch<a class="headerlink" href="#overhead-of-the-context-switch" title="Permalink to this headline"></a></h2>
