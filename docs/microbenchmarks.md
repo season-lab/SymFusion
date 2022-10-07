@@ -22,6 +22,7 @@ From the output of the three tools, you can see their running time. On our machi
  - SymFusion: 940 ms
  - SymCC: 910 ms
  - SymQEMU: 6008 ms
+
 Hence, you can see that SymFusion is almost as fast as SymCC and way faster than SymQEMU.
 
 ## 02 - Data Flow via External Function
