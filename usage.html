@@ -39,7 +39,10 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#concolic-execution-python-wrapper">Concolic execution (Python wrapper)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#concolic-execution-python-wrapper">Concolic execution (Python wrapper)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#example">Example</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#concolic-execution-rust-wrapper">Concolic execution (Rust wrapper)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#hybrid-fuzzing-afl">Hybrid fuzzing (AFL++)</a></li>
 </ul>
@@ -85,6 +88,121 @@
 <p>We also show how to use SymFusion in a hybrid fuzzing setup with AFL++.</p>
 <div class="section" id="concolic-execution-python-wrapper">
 <h2>Concolic execution (Python wrapper)<a class="headerlink" href="#concolic-execution-python-wrapper" title="Permalink to this headline"></a></h2>
+<p>To run SymFusion in standalone mode, you need to execute the script <code class="docutils literal notranslate"><span class="pre">./runner/symfusion.py</span></code>. For instance:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ ./runner/symfusion.py -o ./workdir -i ./seeds -- ./program [args] @@
+</pre></div>
+</div>
+<p>will run concolic execution on <code class="docutils literal notranslate"><span class="pre">./program</span></code>, passing (optional) arguments <code class="docutils literal notranslate"><span class="pre">args</span></code>, using initial inputs available in the directory <code class="docutils literal notranslate"><span class="pre">seeds</span></code>, generating the results in the directory <code class="docutils literal notranslate"><span class="pre">./workdir</span></code>. Similarly to AFL, since <code class="docutils literal notranslate"><span class="pre">&#64;&#64;</span></code> is specified for the program, then SymFusion will assume that the program is getting the input from a file stored on the filesystem (SymFusion will replace <code class="docutils literal notranslate"><span class="pre">&#64;&#64;</span></code> with the correct path at runtime). When <code class="docutils literal notranslate"><span class="pre">&#64;&#64;</span></code> is not used, SymFusion will assume that the input is obtained by reading from the standard input. The exploration will follow multiple paths, halting when no new interesting inputs can be generated anymore by SymFusion.</p>
+<p>Several other options can be set to enable additional features:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-a,</span> <span class="pre">--afl</span> <span class="pre">AFL_WORKDIR</span></code>: this enables the AFL++ mode;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-t,</span> <span class="pre">--timeout</span> <span class="pre">TIMEOUT</span></code>: maximum running time for each input (secs);</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-f,</span> <span class="pre">--fork-server</span></code>: run SymFusion with the fork server;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-q,</span> <span class="pre">--queue-mode</span> <span class="pre">{symfusion,</span> <span class="pre">qsym,</span> <span class="pre">hash}</span></code>: how to assess whether a generated input is interesting and how to pick inputs from the queue. <code class="docutils literal notranslate"><span class="pre">symfusion</span></code> is using a custom edge tracer. <code class="docutils literal notranslate"><span class="pre">qsym</span></code> is using AFL++ <code class="docutils literal notranslate"><span class="pre">afl-showmap</span></code> (as done by QSYM) and you need to have an uninstrumented binary <code class="docutils literal notranslate"><span class="pre">&lt;program&gt;.symqemu</span></code>. <code class="docutils literal notranslate"><span class="pre">hash</span></code> is keeping in the queue inputs that have a different hash.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--keep-run-dirs</span></code>: intermediate run directories (<code class="docutils literal notranslate"><span class="pre">workdir/fuzzolic-XXXXX</span></code>), containing tracer/solver logs and generated testcases (before discarding uninteresting ones), will not be deleted when this option is set;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-d,</span> <span class="pre">--debug</span> <span class="pre">{output,</span> <span class="pre">gdb}</span></code>: run SymFusion only the first input from the input directory. <code class="docutils literal notranslate"><span class="pre">output</span></code> will show you the full output of the run. <code class="docutils literal notranslate"><span class="pre">gdb</span></code> will execute SymFusion under GDB.</p></li>
+</ul>
+<p>The full list of fuzzolic options can be seen using <code class="docutils literal notranslate"><span class="pre">./runner/symfusion.py</span> <span class="pre">--help</span></code>.</p>
+<p>After (and during) an exploration, the workdir will typically contain the following files:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">symfusion-XXXXX/</span></code> (kept only when <code class="docutils literal notranslate"><span class="pre">--keep-run-dirs</span></code> is used): e.g., <code class="docutils literal notranslate"><span class="pre">{symfusion-00000,</span> <span class="pre">symfusion-00001,</span> <span class="pre">...}</span></code></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">output.log</span></code>: standard output and standard error of the run</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">id:XXXXXX</span></code>: e.g., <code class="docutils literal notranslate"><span class="pre">id:000000,src:seed</span></code>, this is the seed used for the run</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">YYYYYY</span></code>: e.g., <code class="docutils literal notranslate"><span class="pre">000000</span></code>, a generated input</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">queue/</span></code>: interesting test cases generated by SymFusion</p></li>
+</ul>
+<p>Hence, when looking for interesting test cases generated by SymFuson, check the directory <code class="docutils literal notranslate"><span class="pre">queue</span></code>.</p>
+<div class="section" id="example">
+<h3>Example<a class="headerlink" href="#example" title="Permalink to this headline"></a></h3>
+<p>Let us consider the program <a class="reference external" href="https://github.com/season-lab/SymFusion/blob/master/tests/example/example.c#L21"><code class="docutils literal notranslate"><span class="pre">tests/example/example.c</span></code></a>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#include &lt;stdio.h&gt;</span>
+<span class="c1">#include &lt;stdlib.h&gt;</span>
+
+<span class="nb">int</span> <span class="n">magic_check</span><span class="p">(</span><span class="nb">int</span> <span class="n">p</span><span class="p">){</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">p</span> <span class="o">==</span> <span class="mh">0xDEADBEEF</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="k">else</span>
+        <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="nb">int</span> <span class="n">get_input</span><span class="p">(</span><span class="n">char</span><span class="o">*</span> <span class="n">fname</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">FILE</span><span class="o">*</span> <span class="n">fp</span> <span class="o">=</span> <span class="n">fopen</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">fp</span> <span class="o">==</span> <span class="n">NULL</span><span class="p">)</span> <span class="n">exit</span><span class="p">(</span><span class="n">EXIT_FAILURE</span><span class="p">);</span>
+    <span class="nb">int</span> <span class="n">data</span><span class="p">;</span>
+    <span class="nb">int</span> <span class="n">r</span> <span class="o">=</span> <span class="n">fread</span><span class="p">(</span><span class="o">&amp;</span><span class="n">data</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">sizeof</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">fp</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">r</span> <span class="o">!=</span> <span class="n">sizeof</span><span class="p">(</span><span class="n">data</span><span class="p">))</span> <span class="n">exit</span><span class="p">(</span><span class="n">EXIT_FAILURE</span><span class="p">);</span>
+    <span class="n">fclose</span><span class="p">(</span><span class="n">fp</span><span class="p">);</span>
+    <span class="k">return</span> <span class="n">data</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="nb">int</span> <span class="n">main</span><span class="p">(</span><span class="nb">int</span> <span class="n">argc</span><span class="p">,</span> <span class="n">char</span><span class="o">*</span> <span class="n">argv</span><span class="p">[])</span> <span class="p">{</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">argc</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">)</span> <span class="n">exit</span><span class="p">(</span><span class="n">EXIT_FAILURE</span><span class="p">);</span>
+    <span class="nb">int</span> <span class="nb">input</span> <span class="o">=</span> <span class="n">get_input</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span> <span class="o">//</span> <span class="n">read</span> <span class="n">four</span> <span class="nb">bytes</span> <span class="kn">from</span> <span class="nn">the</span> <span class="nb">input</span> <span class="n">file</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">magic_check</span><span class="p">(</span><span class="nb">input</span><span class="p">))</span> <span class="p">{</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s2">&quot;Correct value [</span><span class="si">%x</span><span class="s2">] :)</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">input</span><span class="p">);</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s2">&quot;Wrong value [</span><span class="si">%x</span><span class="s2">] :(</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">input</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Our goal is to automatically find the magic value <code class="docutils literal notranslate"><span class="pre">0xDEADBEEF</span></code> that is expected by the function <code class="docutils literal notranslate"><span class="pre">magic_check</span></code>. Since we do not know the magic value beforehand, we consider as an initial seed a file (<a class="reference external" href="https://github.com/season-lab/SymFusion/blob/master/tests/example/inputs/seed.dat"><code class="docutils literal notranslate"><span class="pre">tests/example/inputs/seed.dat</span></code></a>) containing just the <code class="docutils literal notranslate"><span class="pre">AAAA\n</span></code> characters. Moreover, since fuzzolic is a binary concolic executor, we need to compile the example into a working binary:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd tests/example
+$ clang-10 -o example example.c                                 # non instrument version
+$ ../../symcc-hybrid/build/symcc -o example.symfusion example.c # instrumented version
+</pre></div>
+</div>
+<p>If we run the (non-instrumented) binary over the initial seed:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ ./tests/example/example ./inputs/seed.dat 
+</pre></div>
+</div>
+<p>we should get the following output:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Wrong</span> <span class="n">value</span> <span class="p">[</span><span class="mi">41414141</span><span class="p">]</span> <span class="p">:(</span>
+</pre></div>
+</div>
+<p>Now, if we instead start the concolic exploration with SymFusion using the instrumented binary:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ ./runner/symfusion.py -o ./out/ -i ./inputs/ -- ./example.symfusion @@
+</pre></div>
+</div>
+<p>The output should be similar to:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Done</span> <span class="n">generating</span> <span class="n">config</span><span class="o">.</span>
+
+<span class="n">Evaluating</span> <span class="n">seed</span> <span class="n">inputs</span><span class="p">:</span>
+<span class="n">Testcase</span> <span class="n">seed</span><span class="o">.</span><span class="n">dat</span> <span class="p">[</span><span class="mi">1</span><span class="n">f1964918bb5b9a1</span><span class="p">,</span> <span class="mi">27</span><span class="n">ad6cb4038e12a</span><span class="p">]:</span> <span class="n">new_edges</span><span class="o">=</span><span class="p">[</span><span class="n">app</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="nb">all</span><span class="o">=</span><span class="mi">4181</span><span class="p">],</span> <span class="n">unique_path</span><span class="o">=</span><span class="p">[</span><span class="n">app</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="nb">all</span><span class="o">=</span><span class="kc">True</span><span class="p">]</span>
+<span class="n">Summary</span> <span class="n">of</span> <span class="n">testcases</span><span class="p">:</span> <span class="n">duplicated</span><span class="o">=</span><span class="mi">0</span> <span class="n">unique</span><span class="o">=</span><span class="mi">1</span> <span class="n">tracer_time</span><span class="o">=</span><span class="mf">0.06</span>
+
+<span class="n">Picking</span> <span class="nb">input</span> <span class="kn">from</span> <span class="nn">queue</span> <span class="n">Edges</span> <span class="p">(</span><span class="n">application</span> <span class="n">code</span><span class="p">):</span> <span class="nb">id</span><span class="p">:</span><span class="mi">000000</span><span class="p">,</span><span class="n">src</span><span class="p">:</span><span class="n">seed</span> <span class="p">[</span><span class="n">score</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">waiting</span><span class="o">=</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">Working</span> <span class="n">directory</span><span class="p">:</span> <span class="n">workdir</span> <span class="o">=&gt;</span> <span class="n">symfusion</span><span class="o">-</span><span class="mi">00000000</span>
+<span class="n">Running</span><span class="o">...</span>
+<span class="n">Completed</span> <span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="mf">0.052</span><span class="p">)</span>
+<span class="n">Testcase</span> <span class="mi">000000</span> <span class="p">[</span><span class="mi">3</span><span class="n">efe4a0512d16b03</span><span class="p">,</span> <span class="mi">8</span><span class="n">eb61eab981997fd</span><span class="p">]:</span> <span class="n">new_edges</span><span class="o">=</span><span class="p">[</span><span class="n">app</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="nb">all</span><span class="o">=</span><span class="mi">265</span><span class="p">],</span> <span class="n">unique_path</span><span class="o">=</span><span class="p">[</span><span class="n">app</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="nb">all</span><span class="o">=</span><span class="kc">True</span><span class="p">]</span>
+<span class="n">Summary</span> <span class="n">of</span> <span class="n">testcases</span><span class="p">:</span> <span class="n">duplicated</span><span class="o">=</span><span class="mi">0</span> <span class="n">unique</span><span class="o">=</span><span class="mi">1</span> <span class="n">tracer_time</span><span class="o">=</span><span class="mf">0.00</span>
+<span class="n">Run</span> <span class="n">took</span> <span class="mf">0.06</span> <span class="n">secs</span> <span class="p">[</span><span class="n">runner</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">tracer</span><span class="o">=</span><span class="mf">0.00</span><span class="p">,</span> <span class="n">tracer_run</span><span class="o">=</span><span class="mf">0.00</span><span class="p">,</span> <span class="n">tracer_comp</span><span class="o">=</span><span class="mf">0.00</span><span class="p">,</span> <span class="n">total_tracer</span><span class="o">=</span><span class="mf">0.00</span><span class="p">,</span> <span class="n">total_runner</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">avg_total_runner</span><span class="o">=</span><span class="mf">0.052</span><span class="p">,</span> <span class="n">all_time</span><span class="o">=</span><span class="mf">0.06</span><span class="p">,</span> <span class="n">pick_time</span><span class="o">=</span><span class="mf">0.00</span><span class="p">]</span>
+
+<span class="n">Picking</span> <span class="nb">input</span> <span class="kn">from</span> <span class="nn">queue</span> <span class="n">Edges</span> <span class="p">(</span><span class="n">application</span> <span class="n">code</span><span class="p">):</span> <span class="nb">id</span><span class="p">:</span><span class="mi">000001</span><span class="p">,</span><span class="n">src</span><span class="p">:</span><span class="nb">id</span><span class="p">:</span><span class="mi">000000</span> <span class="p">[</span><span class="n">score</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">waiting</span><span class="o">=</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">total_run</span><span class="o">=</span><span class="mf">0.06</span><span class="p">,</span> <span class="n">total_pick</span><span class="o">=</span><span class="mf">0.00</span><span class="p">,</span> <span class="n">all_time</span><span class="o">=</span><span class="mf">0.06</span>
+<span class="n">Working</span> <span class="n">directory</span><span class="p">:</span> <span class="n">workdir</span> <span class="o">=&gt;</span> <span class="n">symfusion</span><span class="o">-</span><span class="mi">00000001</span>
+<span class="n">Running</span><span class="o">...</span>
+<span class="n">Completed</span> <span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="mf">0.055</span><span class="p">)</span>
+<span class="n">Summary</span> <span class="n">of</span> <span class="n">testcases</span><span class="p">:</span> <span class="n">duplicated</span><span class="o">=</span><span class="mi">1</span> <span class="n">unique</span><span class="o">=</span><span class="mi">0</span> <span class="n">tracer_time</span><span class="o">=</span><span class="mf">0.00</span>
+<span class="n">Run</span> <span class="n">took</span> <span class="mf">0.07</span> <span class="n">secs</span> <span class="p">[</span><span class="n">runner</span><span class="o">=</span><span class="mf">0.06</span><span class="p">,</span> <span class="n">tracer</span><span class="o">=</span><span class="mf">0.00</span><span class="p">,</span> <span class="n">tracer_run</span><span class="o">=</span><span class="mf">0.00</span><span class="p">,</span> <span class="n">tracer_comp</span><span class="o">=</span><span class="mf">0.00</span><span class="p">,</span> <span class="n">total_tracer</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">total_runner</span><span class="o">=</span><span class="mf">0.11</span><span class="p">,</span> <span class="n">avg_total_runner</span><span class="o">=</span><span class="mf">0.054</span><span class="p">,</span> <span class="n">all_time</span><span class="o">=</span><span class="mf">0.13</span><span class="p">,</span> <span class="n">pick_time</span><span class="o">=</span><span class="mf">0.00</span><span class="p">]</span>
+<span class="n">total_run</span><span class="o">=</span><span class="mf">0.13</span><span class="p">,</span> <span class="n">total_pick</span><span class="o">=</span><span class="mf">0.00</span><span class="p">,</span> <span class="n">all_time</span><span class="o">=</span><span class="mf">0.13</span>
+
+<span class="p">[</span><span class="n">SymFusion</span><span class="p">]</span> <span class="n">no</span> <span class="n">more</span> <span class="n">testcases</span><span class="o">.</span> <span class="n">Finishing</span><span class="o">.</span>
+</pre></div>
+</div>
+<p>and see that the generated input is indeed accepted by the program:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ ./example out/queue/id\:000001\,src\:id\:000000 
+Correct value [deadbeef] :)
+</pre></div>
+</div>
+</div>
 </div>
 <div class="section" id="concolic-execution-rust-wrapper">
 <h2>Concolic execution (Rust wrapper)<a class="headerlink" href="#concolic-execution-rust-wrapper" title="Permalink to this headline"></a></h2>
