@@ -40,7 +40,7 @@
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Microbenchmarks</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#cpu-intensive-loop">01 - CPU Intensive Loop</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#external-function">02 - External Function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#data-flow-via-external-function">02 - Data Flow via External Function</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#x86-64-division-in-internal-code">03 - x86_64 Division in Internal Code</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#b-x86-64-division-in-external-code">03b - x86_64 Division in External Code</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#ntohs">05 - ntohs</a></li>
@@ -103,8 +103,34 @@ $ make symqemu      # run the program under SymFusion
 Hence, you can see that SymFusion is almost as fast as SymCC and way faster than SymQEMU.</p></li>
 </ul>
 </div>
-<div class="section" id="external-function">
-<h2>02 - External Function<a class="headerlink" href="#external-function" title="Permalink to this headline"></a></h2>
+<div class="section" id="data-flow-via-external-function">
+<h2>02 - Data Flow via External Function<a class="headerlink" href="#data-flow-via-external-function" title="Permalink to this headline"></a></h2>
+<p>The goal of this program is validate that SymFusion can correctly track a data flow even when this flow is happening inside a library function that was not instrumented at compilation time.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd tests/microbenchmarks/01-cpu-intensive-loop
+$ make              # to build the program for SymFusion/SymCC/SymQEMU
+$ make symfusion    # run the program under SymFusion
+$ make symcc        # run the program under SymFusion
+$ make symqemu      # run the program under SymFusion
+</pre></div>
+</div>
+<p>Expected results:</p>
+<ul class="simple">
+<li><p>SymFusion is able to generate an input to satify the branch inside the program. Check it with:</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ LD_LIBRARY_PATH=`pwd` ./main.symqemu &lt; out/symfusion-00000000/000000
+OK
+</pre></div>
+</div>
+<p>where <code class="docutils literal notranslate"><span class="pre">OK</span></code> means that the branch was satisfied. <code class="docutils literal notranslate"><span class="pre">out</span></code> is the output directory used by SymFusion.</p>
+<ul class="simple">
+<li><p>SymCC does not generate any input able to satisfy the branch. It is missing the data flow via the external code. Check <code class="docutils literal notranslate"><span class="pre">out_symcc</span></code> to see that there no inpits.</p></li>
+<li><p>SymQEMU is able to generate an input to satify the branch inside the program. Check it with:</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ LD_LIBRARY_PATH=`pwd` ./main.symqemu &lt; out_symqemu/000000
+OK
+</pre></div>
+</div>
+<p>where <code class="docutils literal notranslate"><span class="pre">out_symqemu</span></code> is the output directory used by SymQEMU.</p>
 </div>
 <div class="section" id="x86-64-division-in-internal-code">
 <h2>03 - x86_64 Division in Internal Code<a class="headerlink" href="#x86-64-division-in-internal-code" title="Permalink to this headline"></a></h2>
