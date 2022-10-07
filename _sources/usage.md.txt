@@ -70,7 +70,9 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 ```
-Our goal is to automatically find the magic value `0xDEADBEEF` that is expected by the function `magic_check`. Since we do not know the magic value beforehand, we consider as an initial seed a file ([`tests/example/inputs/seed.dat`](https://github.com/season-lab/SymFusion/blob/master/tests/example/inputs/seed.dat)) containing just the `AAAA\n` characters. Moreover, since fuzzolic is a binary concolic executor, we need to compile the example into a working binary:
+Our goal is to automatically find the magic value `0xDEADBEEF` that is expected by the function `magic_check`. Since we do not know the magic value beforehand, we consider as an initial seed a file ([`tests/example/inputs/seed.dat`](https://github.com/season-lab/SymFusion/blob/master/tests/example/inputs/seed.dat)) containing just the `AAAA\n` characters. 
+
+We build the programs in two versions (non instrumented and instrumented):
 ```
 $ cd tests/example
 $ clang-10 -o example example.c                                 # non instrument version

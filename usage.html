@@ -152,7 +152,8 @@
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>Our goal is to automatically find the magic value <code class="docutils literal notranslate"><span class="pre">0xDEADBEEF</span></code> that is expected by the function <code class="docutils literal notranslate"><span class="pre">magic_check</span></code>. Since we do not know the magic value beforehand, we consider as an initial seed a file (<a class="reference external" href="https://github.com/season-lab/SymFusion/blob/master/tests/example/inputs/seed.dat"><code class="docutils literal notranslate"><span class="pre">tests/example/inputs/seed.dat</span></code></a>) containing just the <code class="docutils literal notranslate"><span class="pre">AAAA\n</span></code> characters. Moreover, since fuzzolic is a binary concolic executor, we need to compile the example into a working binary:</p>
+<p>Our goal is to automatically find the magic value <code class="docutils literal notranslate"><span class="pre">0xDEADBEEF</span></code> that is expected by the function <code class="docutils literal notranslate"><span class="pre">magic_check</span></code>. Since we do not know the magic value beforehand, we consider as an initial seed a file (<a class="reference external" href="https://github.com/season-lab/SymFusion/blob/master/tests/example/inputs/seed.dat"><code class="docutils literal notranslate"><span class="pre">tests/example/inputs/seed.dat</span></code></a>) containing just the <code class="docutils literal notranslate"><span class="pre">AAAA\n</span></code> characters.</p>
+<p>We build the programs in two versions (non instrumented and instrumented):</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd tests/example
 $ clang-10 -o example example.c                                 # non instrument version
 $ ../../symcc-hybrid/build/symcc -o example.symfusion example.c # instrumented version
