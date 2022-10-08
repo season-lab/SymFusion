@@ -231,7 +231,7 @@ $ export SEEDS=`pwd`/inputs                     # initial set of inputs for AFL+
 $ rm -rf ${OUTPUT}/concolic
 </pre></div>
 </div>
-<p>If you are aiming hybrid fuzzing setup, you need to start AFL++:</p>
+<p>You can start AFL++ in background:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ /afl/afl-fuzz -M afl-master -t 5000 -m 100M -i ${SEEDS} -o ${OUTPUT} -- ./example.afl @@ &gt;/dev/null 2&gt;&amp;1 &amp;
 </pre></div>
 </div>
@@ -241,7 +241,7 @@ $ rm -rf ${OUTPUT}/concolic
 <li><p><code class="docutils literal notranslate"><span class="pre">${OUTPUT}/afl-master/fuzz_bitmap</span></code></p></li>
 </ul>
 <p>You can now start SymFusion with:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ ../../symcc-hybrid/build/symcc_fuzzing_helper -a afl-master -o ${OUTPUT} -n concolic -- ${WRAPPER} &lt;instrumented binary with SymFusion&gt; &lt;args&gt;
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ ../../symcc-hybrid/build/symcc_fuzzing_helper -a afl-master -o ${OUTPUT} -n concolic -- ${WRAPPER} ./example.symfusion @@
 </pre></div>
 </div>
 <p>Use CTRL+c to stop the concolic executor and AFL++.</p>
