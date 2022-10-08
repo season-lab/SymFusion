@@ -155,7 +155,7 @@ $ ../../runner/symfusion.py -g ${HYBRID_CONF_FILE} -i ${SEEDS} -o ${OUTPUT}/conc
 $ rm -rf ${OUTPUT}/concolic
 ```
 
-If you are aiming hybrid fuzzing setup, you need to start AFL++:
+You can start AFL++ in background:
 ```
 $ /afl/afl-fuzz -M afl-master -t 5000 -m 100M -i ${SEEDS} -o ${OUTPUT} -- ./example.afl @@ >/dev/null 2>&1 &
 ```
@@ -165,6 +165,6 @@ And then wait until AFL++ creates:
 
 You can now start SymFusion with:
 ```
-$ ../../symcc-hybrid/build/symcc_fuzzing_helper -a afl-master -o ${OUTPUT} -n concolic -- ${WRAPPER} <instrumented binary with SymFusion> <args>
+$ ../../symcc-hybrid/build/symcc_fuzzing_helper -a afl-master -o ${OUTPUT} -n concolic -- ${WRAPPER} ./example.symfusion @@
 ```
 Use CTRL+c to stop the concolic executor and AFL++.
