@@ -122,7 +122,7 @@ $ ./example out/queue/id\:000001\,src\:id\:000000
 Correct value [deadbeef] :)
 ```
 
-## Hybrid Fuzzing Setup with AFL++ (Rust wrapper)
+## Hybrid fuzzing setup with AFL++ (Rust wrapper)
 
 We consider again the simple example from`./tests/example/`. We will have to perform several steps, we review each of them but they are all detailed in the script `./tests/example/start-rust-aflpp.sh`.
 
