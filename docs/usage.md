@@ -2,9 +2,7 @@
 
 You can run SymFusion using:
 - a Python wrapper: quick way of running the tool without setting variables, creating directories, etc.
-- a Rust wrapper: this is an improved version of the wrapper proposed by SymCC. Faster than the Python wrapper but requires a few preliminary operations. 
-
-We also show how to use SymFusion in a hybrid fuzzing setup with AFL++.
+- a Rust wrapper: this is an improved version of the wrapper proposed by SymCC. Faster than the Python wrapper but requires a few preliminary operations. We show how to use SymFusion in a hybrid fuzzing setup with AFL++.
 
 ## Concolic execution (Python wrapper)
 
@@ -124,6 +122,49 @@ $ ./example out/queue/id\:000001\,src\:id\:000000
 Correct value [deadbeef] :)
 ```
 
-## Concolic execution (Rust wrapper)
+## Hybrid Fuzzing Setup with AFL++ (Rust wrapper)
 
-## Hybrid fuzzing (AFL++)
+We consider again the simple example from`./tests/example/`. We will have to perform several steps, we review each of them but they are all detailed in the script `./tests/example/start-rust-aflpp.sh`.
+
+To start, we build two versions of the program:
+```
+$ cd ./tests/example/
+$ ../../symcc-hybrid/build/symcc -o example example.c # build for SymFusion
+$ /afl/afl-clang-fast example.c -o example.afl        # build for AFL++
+```
+
+Let us create an output directory:
+```
+$ export OUTPUT=`pwd`/out
+$ mkdir ${OUTPUT}
+```
+
+And set some environment variables
+```
+$ export HYBRID_CONF_FILE=$OUTPUT/hybrid.conf
+$ export LD_BIND_NOW=1
+$ export SYMFUSION_HYBRID=1
+$ export WRAPPER=`pwd`/../../symqemu-hybrid/x86_64-linux-user/symqemu-x86_64
+$ export SYMCC_ENABLE_LINEARIZATION=1
+$ export SEEDS=`pwd`/inputs                     # initial set of inputs for AFL++
+```
+
+We now build the hybrid configuration:
+```
+$ ../../runner/symfusion.py -g ${HYBRID_CONF_FILE} -i ${SEEDS} -o ${OUTPUT}/concolic -- ./example.symfusion @@
+$ rm -rf ${OUTPUT}/concolic
+```
+
+If you are aiming hybrid fuzzing setup, you need to start AFL++:
+```
+$ /afl/afl-fuzz -M afl-master -t 5000 -m 100M -i ${SEEDS} -o ${OUTPUT} -- ./example.afl @@ >/dev/null 2>&1 &
+```
+And then wait until AFL++ creates:
+- `${OUTPUT}/afl-master/fuzzer_stats`
+- `${OUTPUT}/afl-master/fuzz_bitmap`
+
+You can now start SymFusion with:
+```
+$ ../../symcc-hybrid/build/symcc_fuzzing_helper -a afl-master -o ${OUTPUT} -n concolic -- ${WRAPPER} <instrumented binary with SymFusion> <args>
+```
+Use CTRL+c to stop the concolic executor and AFL++.
