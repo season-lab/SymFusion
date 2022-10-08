@@ -43,8 +43,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#example">Example</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#concolic-execution-rust-wrapper">Concolic execution (Rust wrapper)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#hybrid-fuzzing-afl">Hybrid fuzzing (AFL++)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#hybrid-fuzzing-setup-with-afl-rust-wrapper">Hybrid Fuzzing Setup with AFL++ (Rust wrapper)</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="microbenchmarks.html">Microbenchmarks</a></li>
@@ -83,9 +82,8 @@
 <p>You can run SymFusion using:</p>
 <ul class="simple">
 <li><p>a Python wrapper: quick way of running the tool without setting variables, creating directories, etc.</p></li>
-<li><p>a Rust wrapper: this is an improved version of the wrapper proposed by SymCC. Faster than the Python wrapper but requires a few preliminary operations.</p></li>
+<li><p>a Rust wrapper: this is an improved version of the wrapper proposed by SymCC. Faster than the Python wrapper but requires a few preliminary operations. We show how to use SymFusion in a hybrid fuzzing setup with AFL++.</p></li>
 </ul>
-<p>We also show how to use SymFusion in a hybrid fuzzing setup with AFL++.</p>
 <div class="section" id="concolic-execution-python-wrapper">
 <h2>Concolic execution (Python wrapper)<a class="headerlink" href="#concolic-execution-python-wrapper" title="Permalink to this headline"></a></h2>
 <p>To run SymFusion in standalone mode, you need to execute the script <code class="docutils literal notranslate"><span class="pre">./runner/symfusion.py</span></code>. For instance:</p>
@@ -205,11 +203,48 @@ Correct value [deadbeef] :)
 </div>
 </div>
 </div>
-<div class="section" id="concolic-execution-rust-wrapper">
-<h2>Concolic execution (Rust wrapper)<a class="headerlink" href="#concolic-execution-rust-wrapper" title="Permalink to this headline"></a></h2>
+<div class="section" id="hybrid-fuzzing-setup-with-afl-rust-wrapper">
+<h2>Hybrid Fuzzing Setup with AFL++ (Rust wrapper)<a class="headerlink" href="#hybrid-fuzzing-setup-with-afl-rust-wrapper" title="Permalink to this headline"></a></h2>
+<p>We consider again the simple example from<code class="docutils literal notranslate"><span class="pre">./tests/example/</span></code>. We will have to perform several steps, we review each of them but they are all detailed in the script <code class="docutils literal notranslate"><span class="pre">./tests/example/start-rust-aflpp.sh</span></code>.</p>
+<p>To start, we build two versions of the program:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd ./tests/example/
+$ ../../symcc-hybrid/build/symcc -o example example.c # build for SymFusion
+$ /afl/afl-clang-fast example.c -o example.afl        # build for AFL++
+</pre></div>
 </div>
-<div class="section" id="hybrid-fuzzing-afl">
-<h2>Hybrid fuzzing (AFL++)<a class="headerlink" href="#hybrid-fuzzing-afl" title="Permalink to this headline"></a></h2>
+<p>Let us create an output directory:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ export OUTPUT=`pwd`/out
+$ mkdir ${OUTPUT}
+</pre></div>
+</div>
+<p>And set some environment variables</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ export HYBRID_CONF_FILE=$OUTPUT/hybrid.conf
+$ export LD_BIND_NOW=1
+$ export SYMFUSION_HYBRID=1
+$ export WRAPPER=`pwd`/../../symqemu-hybrid/x86_64-linux-user/symqemu-x86_64
+$ export SYMCC_ENABLE_LINEARIZATION=1
+$ export SEEDS=`pwd`/inputs                     # initial set of inputs for AFL++
+</pre></div>
+</div>
+<p>We now build the hybrid configuration:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ ../../runner/symfusion.py -g ${HYBRID_CONF_FILE} -i ${SEEDS} -o ${OUTPUT}/concolic -- ./example.symfusion @@
+$ rm -rf ${OUTPUT}/concolic
+</pre></div>
+</div>
+<p>If you are aiming hybrid fuzzing setup, you need to start AFL++:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ /afl/afl-fuzz -M afl-master -t 5000 -m 100M -i ${SEEDS} -o ${OUTPUT} -- ./example.afl @@ &gt;/dev/null 2&gt;&amp;1 &amp;
+</pre></div>
+</div>
+<p>And then wait until AFL++ creates:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">${OUTPUT}/afl-master/fuzzer_stats</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">${OUTPUT}/afl-master/fuzz_bitmap</span></code></p></li>
+</ul>
+<p>You can now start SymFusion with:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ ../../symcc-hybrid/build/symcc_fuzzing_helper -a afl-master -o ${OUTPUT} -n concolic -- ${WRAPPER} &lt;instrumented binary with SymFusion&gt; &lt;args&gt;
+</pre></div>
+</div>
+<p>Use CTRL+c to stop the concolic executor and AFL++.</p>
 </div>
 </div>
 
