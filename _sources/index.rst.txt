@@ -11,7 +11,7 @@ News
 ------------
 
 * The preprint of the paper accepted at ASE 2022 is available: [`PDF <https://github.com/ecoppa/ecoppa.github.io/raw/master/assets/pdf/symfusion-preprint.pdf>`_].
-* **The code of Fuzzolic has been released.**
+* **The code of SymFusion has been released.**
 
 Publications
 ------------
