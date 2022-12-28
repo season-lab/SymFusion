@@ -15,7 +15,6 @@ import functools
 import tempfile
 import struct
 import posix
-import psutil
 
 from limiter import setlimits, RUNNING_PROCESSES
 import hybrid
